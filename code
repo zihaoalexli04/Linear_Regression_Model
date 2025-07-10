@@ -1,0 +1,54 @@
+Sub InsertGenderPieChartFromJColumn()
+    Dim srcSheet As Worksheet
+    Dim tgtSheet As Worksheet
+    Dim chartObj As ChartObject
+    Dim genderRange As Range
+    Dim lastRow As Long
+    Dim dict As Object
+    Dim cell As Range
+    Dim i As Integer
+
+    ' 设置数据源工作表和性别数据范围
+    Set srcSheet = Worksheets("Count of Recipient Gender") ' 请根据实际表名修改
+    lastRow = srcSheet.Cells(srcSheet.Rows.Count, "J").End(xlUp).Row
+    Set genderRange = srcSheet.Range("J2:J" & lastRow)
+
+    Set dict = CreateObject("Scripting.Dictionary")
+    ' 统计各性别数量
+    For Each cell In genderRange
+        If Trim(cell.Value) = "" Then
+            dict("Blank") = dict("Blank") + 1
+        Else
+            dict(cell.Value) = dict(cell.Value) + 1
+        End If
+    Next cell
+
+    ' 将统计结果写入目标表的A列和B列
+    On Error Resume Next
+    Set tgtSheet = Worksheets("GenderChartSheet")
+    If tgtSheet Is Nothing Then
+        Set tgtSheet = Worksheets.Add
+        tgtSheet.Name = "GenderChartSheet"
+    End If
+    On Error GoTo 0
+    tgtSheet.Cells.Clear
+
+    i = 2
+    tgtSheet.Range("A1").Value = "Gender"
+    tgtSheet.Range("B1").Value = "Count"
+    For Each key In dict.Keys
+        tgtSheet.Cells(i, 1).Value = key
+        tgtSheet.Cells(i, 2).Value = dict(key)
+        i = i + 1
+    Next key
+
+    ' 插入饼图
+    Set chartObj = tgtSheet.ChartObjects.Add(Left:=100, Top:=50, Width:=400, Height:=300)
+    With chartObj.Chart
+        .SetSourceData Source:=tgtSheet.Range("A1:B" & i - 1)
+        .ChartType = xlPie
+        .HasTitle = True
+        .ChartTitle.Text = "Count of Recipient Gender"
+        .Legend.Position = xlLegendPositionBottom
+    End With
+End Sub
