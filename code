@@ -16,7 +16,7 @@ Sub InsertGenderPieChartFromJColumn()
         If Len(Trim(cell.Value)) = 0 Then
             dict("Blank") = dict("Blank") + 1
         Else
-            dict(cell.Value) = dict(cell.Value) + 1
+            dict(Trim(cell.Value)) = dict(Trim(cell.Value)) + 1
         End If
     Next cell
 
